@@ -82,47 +82,71 @@ class SecureExoplanetPredictor:
         """Load trained models and metadata"""
         try:
             # Load Random Forest
-            rf_path = self.model_path / "random-forest.model"
+            rf_path = self.model_path / "random_forest.model"
             if rf_path.exists():
                 self.rf_model = joblib.load(rf_path)
-                logger.info("✅ Random Forest model loaded")
+                logger.info("Random Forest model loaded")
             
             # Load XGBoost
             xgb_path = self.model_path / "xgboost.model"
             if xgb_path.exists():
                 with open(xgb_path, 'rb') as f:
                     self.xgb_model = pickle.load(f)
-                logger.info("✅ XGBoost model loaded")
+                logger.info("XGBoost model loaded")
             
             # Load ensemble metadata
-            metadata_path = self.model_path / "ensemble_metadata.pkl"
+            metadata_path = self.model_path / "ensemble_metadata.model"
             if metadata_path.exists():
                 with open(metadata_path, 'rb') as f:
                     self.ensemble_metadata = pickle.load(f)
                 if 'target_map' in self.ensemble_metadata:
-                    self.target_map = self.ensemble_metadata['target_map']
+                    # The target_map may be inverted (string->int), so we need to invert it to (int->string)
+                    loaded_map = self.ensemble_metadata['target_map']
+                    new_target_map = {}
+                    
+                    # Check if keys are strings or integers
+                    first_key = next(iter(loaded_map.keys()))
+                    if isinstance(first_key, str):
+                        # Map is string->int, invert it to int->string
+                        for k, v in loaded_map.items():
+                            new_target_map[int(v)] = k
+                    else:
+                        # Map is already int->string or int->int
+                        for k, v in loaded_map.items():
+                            new_target_map[int(k)] = str(v)
+                    
+                    self.target_map = new_target_map
                 if 'class_names' in self.ensemble_metadata:
                     self.class_names = self.ensemble_metadata['class_names']
-                logger.info("✅ Ensemble metadata loaded")
+                logger.info("Ensemble metadata loaded")
             
             # Load feature bounds for validation
-            bounds_path = self.model_path / "feature_bounds.pkl"
+            bounds_path = self.model_path / "features.model"
             if bounds_path.exists():
                 with open(bounds_path, 'rb') as f:
                     self.feature_bounds = pickle.load(f)
-                logger.info("✅ Feature bounds loaded")
+                logger.info("Feature bounds loaded")
+            else:
+                # Fallback: create reasonable bounds for basic validation
+                self.feature_bounds = {
+                    'koi_period': {'min': 0.1, 'max': 10000},
+                    'koi_depth': {'min': 0.1, 'max': 100000},
+                    'koi_duration': {'min': 0.1, 'max': 48},
+                    'koi_model_snr': {'min': 1.0, 'max': 1000}
+                }
+                logger.warning("Using fallback feature bounds")
             
             # Check if models are ready
             self.models_loaded = (self.rf_model is not None and 
                                 self.xgb_model is not None)
             
             if self.models_loaded:
-                logger.info("🎯 All models loaded successfully - Ready for predictions!")
+                logger.info("All models loaded successfully - Ready for predictions!")
             else:
-                logger.warning("⚠️ Some models missing - Please train models first")
+                logger.warning("Some models missing - Please train models first")
                 
         except Exception as e:
-            logger.error(f"❌ Failed to load models: {e}")
+            logger.error(f"Failed to load models: {e}")
             self.models_loaded = False
     
     def validate_input(self, data: Dict[str, Any]) -> List[str]:
@@ -222,7 +246,7 @@ class SecureExoplanetPredictor:
             return feature_df
             
         except Exception as e:
-            logger.error(f"❌ Feature engineering failed: {e}")
+            logger.error(f"Feature engineering failed: {e}")
             # Return DataFrame with zeros as fallback
             return pd.DataFrame(np.zeros((1, len(self.all_features))), columns=self.all_features)
     
@@ -246,7 +270,7 @@ class SecureExoplanetPredictor:
                 'phase_offset': 0.0
             }
         except Exception as e:
-            logger.error(f"❌ Light curve parameter generation failed: {e}")
+            logger.error(f"Light curve parameter generation failed: {e}")
             return {
                 'period_days': 10.0, 'depth_ppm': 100.0, 'duration_hours': 3.0,
                 'impact_parameter': 0.5, 'ingress_duration': 0.45, 'egress_duration': 0.45,
@@ -278,7 +302,14 @@ class SecureExoplanetPredictor:
             
             # Ensemble prediction (weighted average)
             ensemble_probs = (self.rf_weight * rf_probs + self.xgb_weight * xgb_probs)
-            predicted_class = np.argmax(ensemble_probs)
+            predicted_class_raw = np.argmax(ensemble_probs)
+            predicted_class = int(predicted_class_raw)  # Ensure regular Python int
+            
+            # Debug logging
+            logger.debug(f"Predicted class raw: {predicted_class_raw} (type: {type(predicted_class_raw)})")
+            logger.debug(f"Predicted class: {predicted_class} (type: {type(predicted_class)})")
+            logger.debug(f"Target map keys: {list(self.target_map.keys())}")
+            
             prediction_name = self.target_map[predicted_class]
             confidence = float(ensemble_probs[predicted_class])
             
@@ -291,7 +322,7 @@ class SecureExoplanetPredictor:
             # Feature importance (from Random Forest)
             feature_importance = dict(zip(
                 self.all_features,
-                self.rf_model.feature_importances_
+                [float(importance) for importance in self.rf_model.feature_importances_]
             ))
             # Sort by importance and take top 10
             feature_importance = dict(sorted(
@@ -312,7 +343,7 @@ class SecureExoplanetPredictor:
             )
             
         except Exception as e:
-            logger.error(f"❌ Prediction failed: {e}")
+            logger.error(f"Prediction failed: {e}")
             return PredictionResult(
                 prediction="ERROR",
                 confidence=0.0,
@@ -332,10 +363,10 @@ class SecureExoplanetPredictor:
                 results.append(result)
                 
                 if (i + 1) % 100 == 0:
-                    logger.info(f"📊 Processed {i + 1}/{len(batch_data)} predictions")
+                    logger.info(f"Processed {i + 1}/{len(batch_data)} predictions")
                     
             except Exception as e:
-                logger.error(f"❌ Batch prediction {i+1} failed: {e}")
+                logger.error(f"Batch prediction {i+1} failed: {e}")
                 results.append(PredictionResult(
                     prediction="ERROR",
                     confidence=0.0,
@@ -345,7 +376,7 @@ class SecureExoplanetPredictor:
                     light_curve_params={}
                 ))
         
-        logger.info(f"✅ Batch processing complete: {len(results)} predictions")
+        logger.info(f"Batch processing complete: {len(results)} predictions")
         return results
 
 def create_predictor(model_path: Optional[str] = None) -> SecureExoplanetPredictor:

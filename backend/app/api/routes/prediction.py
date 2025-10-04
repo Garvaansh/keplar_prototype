@@ -80,9 +80,9 @@ async def get_predictor() -> SecureExoplanetPredictor:
     if not hasattr(get_predictor, '_predictor'):
         try:
             get_predictor._predictor = create_predictor()
-            logger.info("✅ Predictor initialized for predictions")
+            logger.info("Predictor initialized for predictions")
         except Exception as e:
-            logger.error(f"❌ Failed to initialize predictor: {e}")
+            logger.error(f"Failed to initialize predictor: {e}")
             raise HTTPException(status_code=500, detail="Model initialization failed")
     return get_predictor._predictor
 
@@ -110,11 +110,11 @@ def _generate_explanation(result) -> str:
     
     # Base explanation
     if pred == "CONFIRMED":
-        explanation = f"🪐 This signal shows strong evidence of being a CONFIRMED exoplanet with {conf:.1f}% confidence. "
+        explanation = f"This signal shows strong evidence of being a CONFIRMED exoplanet with {conf:.1f}% confidence. "
     elif pred == "CANDIDATE":
-        explanation = f"🤔 This signal is classified as a CANDIDATE exoplanet with {conf:.1f}% confidence. More observations needed. "
+        explanation = f"This signal is classified as a CANDIDATE exoplanet with {conf:.1f}% confidence. More observations needed. "
     else:
-        explanation = f"❌ This signal appears to be a FALSE POSITIVE with {conf:.1f}% confidence. "
+        explanation = f"This signal appears to be a FALSE POSITIVE with {conf:.1f}% confidence. "
     
     # Add top contributing factors
     top_features = list(result.feature_importance.keys())[:3]
@@ -123,7 +123,7 @@ def _generate_explanation(result) -> str:
     
     # Add warnings if present
     if result.validation_warnings:
-        explanation += f"⚠️ {len(result.validation_warnings)} validation warnings detected."
+        explanation += f"WARNING: {len(result.validation_warnings)} validation warnings detected."
     
     return explanation
 
@@ -153,7 +153,7 @@ async def predict_single(
         # Generate explanation
         explanation = _generate_explanation(result)
         
-        logger.info(f"✅ Prediction: {result.prediction} ({result.confidence:.3f})")
+        logger.info(f"Prediction: {result.prediction} ({result.confidence:.3f})")
         
         return PredictionResponse(
             prediction=result.prediction,
@@ -166,7 +166,7 @@ async def predict_single(
         )
         
     except Exception as e:
-        logger.error(f"❌ Prediction failed: {e}")
+        logger.error(f"Prediction failed: {e}")
         raise HTTPException(status_code=400, detail=f"Prediction failed: {str(e)}")
 
 @router.get("/light-curve/{period}/{depth}/{duration}")
@@ -241,5 +241,5 @@ async def generate_light_curve(
         }
         
     except Exception as e:
-        logger.error(f"❌ Light curve generation failed: {e}")
+        logger.error(f"Light curve generation failed: {e}")
         raise HTTPException(status_code=400, detail=f"Light curve generation failed: {str(e)}")

@@ -1,19 +1,34 @@
-import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss";import type { Config } from "tailwindcss";
 
-export default {
-  darkMode: ["class"],
-  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
-  theme: {
-    extend: {
-      borderRadius: {
-        lg: ".5625rem", /* 9px */
-        md: ".375rem", /* 6px */
-        sm: ".1875rem", /* 3px */
-      },
-      colors: {
-        // Flat / base colors (regular buttons)
-        background: "hsl(var(--background) / <alpha-value>)",
-        foreground: "hsl(var(--foreground) / <alpha-value>)",
+
+
+export default {export default {
+
+  content: [  darkMode: ["class"],
+
+    "./index.html",  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+
+    "./src/**/*.{js,ts,jsx,tsx}",  theme: {
+
+  ],    extend: {
+
+  theme: {      borderRadius: {
+
+    extend: {        lg: ".5625rem", /* 9px */
+
+      fontFamily: {        md: ".375rem", /* 6px */
+
+        sans: ["Inter", "system-ui", "sans-serif"],        sm: ".1875rem", /* 3px */
+
+      },      },
+
+    },      colors: {
+
+  },        // Flat / base colors (regular buttons)
+
+  plugins: [],        background: "hsl(var(--background) / <alpha-value>)",
+
+} satisfies Config;        foreground: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border) / <alpha-value>)",
         input: "hsl(var(--input) / <alpha-value>)",
         card: {

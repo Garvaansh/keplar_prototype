@@ -43,7 +43,7 @@ def setup_logging():
     logging.getLogger("sklearn").setLevel(logging.WARNING)
     
     logger = logging.getLogger(__name__)
-    logger.info(f"🔧 Logging configured - Level: {settings.LOG_LEVEL}")
-    logger.info(f"📁 Log files: {logs_dir}")
+    logger.info(f"Logging configured - Level: {settings.LOG_LEVEL}")
+    logger.info(f"Log files: {logs_dir}")
     
     return logger
