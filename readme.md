@@ -275,7 +275,7 @@ Frontend will run at `http://localhost:5173`
    ```csv
    koi_period,koi_depth,koi_duration,koi_impact,koi_snr,koi_steff,koi_srad,koi_score,koi_fpflag_nt,koi_fpflag_ss,koi_fpflag_co,koi_fpflag_ec
    365.25,84,13.0,0.2,150,5778,1.0,0.95,0,0,0,0
-````
+    ```
 
 3. Upload your CSV file
 4. Wait for processing (progress indicator shown)
