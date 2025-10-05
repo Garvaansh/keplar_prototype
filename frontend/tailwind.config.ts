@@ -1,34 +1,19 @@
-import type { Config } from "tailwindcss";import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss";
 
-
-
-export default {export default {
-
-  content: [  darkMode: ["class"],
-
-    "./index.html",  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
-
-    "./src/**/*.{js,ts,jsx,tsx}",  theme: {
-
-  ],    extend: {
-
-  theme: {      borderRadius: {
-
-    extend: {        lg: ".5625rem", /* 9px */
-
-      fontFamily: {        md: ".375rem", /* 6px */
-
-        sans: ["Inter", "system-ui", "sans-serif"],        sm: ".1875rem", /* 3px */
-
-      },      },
-
-    },      colors: {
-
-  },        // Flat / base colors (regular buttons)
-
-  plugins: [],        background: "hsl(var(--background) / <alpha-value>)",
-
-} satisfies Config;        foreground: "hsl(var(--foreground) / <alpha-value>)",
+export default {
+  darkMode: ["class"],
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      borderRadius: {
+        lg: ".5625rem" /* 9px */,
+        md: ".375rem" /* 6px */,
+        sm: ".1875rem" /* 3px */,
+      },
+      colors: {
+        // Flat / base colors (regular buttons)
+        background: "hsl(var(--background) / <alpha-value>)",
+        foreground: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border) / <alpha-value>)",
         input: "hsl(var(--input) / <alpha-value>)",
         card: {
@@ -88,7 +73,7 @@ export default {export default {
         "sidebar-accent": {
           DEFAULT: "hsl(var(--sidebar-accent) / <alpha-value>)",
           foreground: "hsl(var(--sidebar-accent-foreground) / <alpha-value>)",
-          border: "var(--sidebar-accent-border)"
+          border: "var(--sidebar-accent-border)",
         },
         status: {
           online: "rgb(34 197 94)",
@@ -98,12 +83,14 @@ export default {export default {
         },
         confirmed: "hsl(142 71% 45%)",
         candidate: "hsl(38 92% 50%)",
-        'false-positive': "hsl(0 84% 60%)",
+        "false-positive": "hsl(0 84% 60%)",
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
+        body: ["var(--font-body)"],
+        heading: ["var(--font-heading)"],
       },
       keyframes: {
         "accordion-down": {
@@ -118,7 +105,7 @@ export default {export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.6" },
         },
-        "shimmer": {
+        shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
@@ -135,13 +122,13 @@ export default {export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
-        "shimmer": "shimmer 2s linear infinite",
+        shimmer: "shimmer 2s linear infinite",
         "fade-in": "fade-in 0.3s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
       },
       boxShadow: {
         "glow-sm": "0 0 10px rgba(0, 246, 255, 0.3)",
-        "glow": "0 0 20px rgba(0, 246, 255, 0.3)",
+        glow: "0 0 20px rgba(0, 246, 255, 0.3)",
         "glow-lg": "0 0 30px rgba(0, 246, 255, 0.4)",
         "glow-green": "0 0 20px rgba(34, 197, 94, 0.4)",
         "glow-yellow": "0 0 20px rgba(245, 158, 11, 0.4)",
