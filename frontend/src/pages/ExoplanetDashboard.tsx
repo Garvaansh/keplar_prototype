@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { Orbit, Gauge, Clock, Telescope } from "lucide-react";
+import { Ruler, Thermometer, Calendar, Globe } from "lucide-react";
 import ParameterSlider from "@/components/ParameterSlider";
 import LightCurveChart from "@/components/LightCurveChart";
 import FeatureImportanceChart from "@/components/FeatureImportanceChart";
 import AIClassificationCard from "@/components/AIClassificationCard";
 import PlanetStatsCard from "@/components/PlanetStatsCard";
 import StarryBackground from "@/components/StarryBackground";
-import { Ruler, Thermometer, Calendar, Globe } from "lucide-react";
+import { getPrediction, getLightCurve } from "@/lib/api";
+import type { PredictionResponse } from "@/lib/api";
 
 type Classification = "CONFIRMED" | "CANDIDATE" | "FALSE POSITIVE";
 
@@ -18,21 +20,105 @@ export default function ExoplanetDashboard() {
   const [lightCurveData, setLightCurveData] = useState<Array<{ time: number; flux: number }>>([]);
   const [classification, setClassification] = useState<Classification>("CONFIRMED");
   const [confidence, setConfidence] = useState(0.94);
+  const [featureImportanceData, setFeatureImportanceData] = useState<Array<{ name: string; importance: number; color: string }>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const newData = generateLightCurve(orbitalPeriod, transitDepth / 1000000, transitDuration);
-    setLightCurveData(newData);
+    const fetchPredictionAndLightCurve = async () => {
+      setIsLoading(true);
+      setError(null);
 
-    const { classification: newClass, confidence: newConf } = getMockPrediction(
-      orbitalPeriod,
-      transitDepth,
-      transitDuration
-    );
-    setClassification(newClass);
-    setConfidence(newConf);
+      try {
+        // Fetch light curve from backend
+        const lightCurveResponse = await getLightCurve(
+          orbitalPeriod,
+          transitDepth,
+          transitDuration,
+          0.5 // impact parameter
+        );
+
+        // Convert API format {x, y} to {time, flux}
+        const convertedData = lightCurveResponse.data.map(point => ({
+          time: point.x,
+          flux: point.y,
+        }));
+        setLightCurveData(convertedData);
+
+        // Calculate derived parameters for better prediction
+        const estimatedRadius = Math.sqrt(transitDepth / 10000) * 1.5; // Earth radii
+        const estimatedTemp = Math.round(300 + (50 / orbitalPeriod) * 200); // Kelvin
+        const estimatedSNR = Math.min(100, (transitDepth / 100) * (1 / (transitDuration / 24))); // Signal-to-noise
+        
+        // Fetch prediction from backend with enhanced parameters
+        const predictionResponse = await getPrediction({
+          transit: {
+            koi_period: orbitalPeriod,
+            koi_depth: transitDepth,
+            koi_duration: transitDuration,
+            koi_impact: 0.5,
+            koi_model_snr: estimatedSNR,
+          },
+          planet: {
+            koi_prad: estimatedRadius,
+            koi_teq: estimatedTemp,
+            koi_insol: 1380 / Math.pow(orbitalPeriod / 365, 0.5), // Rough insolation estimate
+          },
+          star: {
+            koi_steff: 5778, // Sun-like star
+            koi_slogg: 4.44,
+            koi_srad: 1.0,
+          },
+          flags: {
+            koi_fpflag_nt: 0,
+            koi_fpflag_ss: 0,
+            koi_fpflag_co: 0,
+            koi_fpflag_ec: 0,
+            koi_score: 0.8, // Default good score
+          },
+        });
+
+        setClassification(predictionResponse.prediction);
+        setConfidence(predictionResponse.confidence);
+
+        // Convert feature importance to chart format
+        const colors = [
+          "hsl(var(--chart-1))",
+          "hsl(var(--chart-2))",
+          "hsl(var(--chart-3))",
+          "hsl(var(--chart-4))",
+          "hsl(var(--chart-5))",
+        ];
+
+        const importanceArray = Object.entries(predictionResponse.feature_importance)
+          .map(([name, importance], index) => ({
+            name: name.replace("koi_", "").replace("_", " "),
+            importance,
+            color: colors[index % colors.length],
+          }))
+          .sort((a, b) => b.importance - a.importance)
+          .slice(0, 5); // Top 5 features
+
+        setFeatureImportanceData(importanceArray);
+      } catch (err) {
+        console.error("Failed to fetch prediction:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch prediction");
+        
+        // Fallback to mock data on error
+        const mockData = generateMockLightCurve(orbitalPeriod, transitDepth / 1000000, transitDuration);
+        setLightCurveData(mockData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Debounce API calls
+    const timeoutId = setTimeout(fetchPredictionAndLightCurve, 300);
+    return () => clearTimeout(timeoutId);
   }, [orbitalPeriod, transitDepth, transitDuration]);
 
-  const generateLightCurve = (period: number, depth: number, duration: number) => {
+  // Fallback function for generating mock data if API fails
+  const generateMockLightCurve = (period: number, depth: number, duration: number) => {
     const points = 100;
     const data = [];
     const totalTime = Math.min(period * 0.3, 10);
@@ -57,53 +143,6 @@ export default function ExoplanetDashboard() {
 
     return data;
   };
-
-  const getMockPrediction = (
-    period: number,
-    depth: number,
-    duration: number
-  ): { classification: Classification; confidence: number } => {
-    const periodScore = period > 0.5 && period < 50 ? 1 : 0.3;
-    const depthScore = depth > 500 && depth < 15000 ? 1 : 0.4;
-    const durationScore = duration > 0.5 && duration < 12 ? 1 : 0.5;
-
-    const totalScore = (periodScore + depthScore + durationScore) / 3;
-
-    if (totalScore > 0.75) {
-      return {
-        classification: "CONFIRMED",
-        confidence: 0.85 + Math.random() * 0.14,
-      };
-    } else if (totalScore > 0.5) {
-      return {
-        classification: "CANDIDATE",
-        confidence: 0.55 + Math.random() * 0.2,
-      };
-    } else {
-      return {
-        classification: "FALSE POSITIVE",
-        confidence: 0.7 + Math.random() * 0.25,
-      };
-    }
-  };
-
-  const featureImportance = [
-    {
-      name: "Transit Depth",
-      importance: transitDepth / 10000,
-      color: "hsl(var(--chart-1))",
-    },
-    {
-      name: "Orbital Period",
-      importance: Math.min(orbitalPeriod / 100, 0.95),
-      color: "hsl(var(--chart-2))",
-    },
-    {
-      name: "Transit Duration",
-      importance: Math.min(transitDuration / 24, 0.85),
-      color: "hsl(var(--chart-3))",
-    },
-  ].sort((a, b) => b.importance - a.importance);
 
   const planetStats = [
     {
@@ -201,17 +240,24 @@ export default function ExoplanetDashboard() {
                 />
               </div>
 
+              {error && (
+                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                  ⚠️ {error} (Using fallback data)
+                </div>
+              )}
+
               <LightCurveChart data={lightCurveData} />
-              <FeatureImportanceChart data={featureImportance} />
+              <FeatureImportanceChart data={featureImportanceData} />
             </div>
 
             <div className="space-y-6">
               <AIClassificationCard
                 classification={classification}
                 confidence={confidence}
+                isLoading={isLoading}
               />
 
-              {classification === "CONFIRMED" && (
+              {!isLoading && (
                 <div className="animate-slide-in">
                   <PlanetStatsCard stats={planetStats} />
                 </div>

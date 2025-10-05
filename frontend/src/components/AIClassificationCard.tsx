@@ -1,13 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, AlertTriangle, XCircle, Zap } from "lucide-react";
+import { CheckCircle, AlertTriangle, XCircle, Zap, Loader2 } from "lucide-react";
 
 type Classification = "CONFIRMED" | "CANDIDATE" | "FALSE POSITIVE";
 
 interface AIClassificationCardProps {
   classification: Classification;
   confidence: number;
+  isLoading?: boolean;
 }
 
 const classificationConfig = {
@@ -43,6 +44,7 @@ const classificationConfig = {
 export default function AIClassificationCard({
   classification,
   confidence,
+  isLoading = false,
 }: AIClassificationCardProps) {
   const config = classificationConfig[classification];
   const Icon = config.icon;
@@ -65,7 +67,11 @@ export default function AIClassificationCard({
         <div className="flex items-center justify-center py-4">
           <div className="relative">
             <div className={`absolute inset-0 ${config.bgColor} rounded-full blur-xl opacity-50 animate-glow-pulse`} />
-            <Icon className={`w-16 h-16 ${config.textColor} relative z-10`} />
+            {isLoading ? (
+              <Loader2 className="w-16 h-16 text-primary relative z-10 animate-spin" />
+            ) : (
+              <Icon className={`w-16 h-16 ${config.textColor} relative z-10`} />
+            )}
           </div>
         </div>
 
