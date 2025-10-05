@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-🚀 Backend Server Runner
-========================
+Backend Server Runner
+=====================
 
 Simple script to run the FastAPI backend server with proper configuration.
 This is the main entry point for development and production.
@@ -34,27 +34,28 @@ def check_models():
             missing_models.append(model_file)
     
     if missing_models:
-        print("⚠️  Missing trained models:")
+        print("WARNING: Missing trained models:")
         for model in missing_models:
             print(f"   - {model}")
-        print("\n💡 Please train models first:")
+        print("\nPlease train models first:")
         print("   1. Open notebook/Fine_Tuned_Training.ipynb")
         print("   2. Run all cells to train the 3-class models")
         print("   3. Models will be saved to model/ directory")
-        print("\n🔄 Continuing without models (API will show warnings)...")
+        print("\nContinuing without models (API will show warnings)...")
     else:
-        print("✅ All required models found!")
+        print("SUCCESS: All required models found!")
     
     return len(missing_models) == 0
 
 def main():
     """Main entry point"""
-    print("🌟 Starting Exoplanet Discovery Dashboard API")
-    print(f"📊 Environment: {settings.ENVIRONMENT}")
-    print(f"🔧 Debug mode: {settings.DEBUG}")
-    print(f"🌐 Host: {settings.HOST}:{settings.PORT}")
-    print(f"📁 Model path: {settings.MODEL_PATH}")
-    print("-" * 50)
+    print("=" * 50)
+    print("Starting Exoplanet Discovery Dashboard API")
+    print(f"Environment: {settings.ENVIRONMENT}")
+    print(f"Debug mode: {settings.DEBUG}")
+    print(f"Host: {settings.HOST}:{settings.PORT}")
+    print(f"Model path: {settings.MODEL_PATH}")
+    print("=" * 50)
     
     # Setup logging
     setup_logging()
@@ -78,12 +79,12 @@ def main():
             "access_log": True
         }
         
-        print(f"\n🚀 Starting server at http://{settings.HOST}:{settings.PORT}")
-        print(f"📚 API docs: http://{settings.HOST}:{settings.PORT}/docs")
-        print(f"🔍 Health check: http://{settings.HOST}:{settings.PORT}/api/v1/health")
+        print(f"\nStarting server at http://{settings.HOST}:{settings.PORT}")
+        print(f"API docs: http://{settings.HOST}:{settings.PORT}/docs")
+        print(f"Health check: http://{settings.HOST}:{settings.PORT}/api/v1/health")
         
         if not models_ready:
-            print("\n⚠️  Server starting without trained models!")
+            print("\nWARNING: Server starting without trained models!")
             print("   Some endpoints may not work until models are trained.")
         
         print("\n" + "=" * 50)
@@ -92,12 +93,12 @@ def main():
         uvicorn.run(**config)
         
     except ImportError as e:
-        print(f"❌ Import error: {e}")
-        print("💡 Please install requirements: pip install -r requirements.txt")
+        print(f"ERROR: Import error: {e}")
+        print("HINT: Please install requirements: pip install -r requirements.txt")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"💥 Server startup failed: {e}")
-        print(f"❌ Server startup failed: {e}")
+        logger.error(f"Server startup failed: {e}")
+        print(f"ERROR: Server startup failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

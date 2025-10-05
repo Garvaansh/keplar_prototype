@@ -9,20 +9,15 @@
   ],
   "scripts": {
     "dev": "concurrently --kill-others-on-fail \"yarn dev:backend\" \"yarn dev:frontend\"",
-    "dev:backend": "bash -c \"cd backend && source venv/Scripts/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000\"",
-    "dev:frontend": "bash -c \"cd frontend && npm run dev\"",
-    "build": "bash -c \"cd frontend && npm run build\"",
+    "dev:backend": "cd backend && python run.py",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
     "start": "concurrently --kill-others-on-fail \"yarn start:backend\" \"yarn start:frontend\"",
-    "start:backend": "bash -c \"cd backend && source venv/Scripts/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000\"",
-    "start:frontend": "bash -c \"cd frontend && npm run preview\"",
-    "test:backend": "bash -c \"cd backend && source venv/Scripts/activate && python -m pytest\"",
-    "test:frontend": "bash -c \"cd frontend && npm run test\"",
-    "install:backend": "bash -c \"cd backend && source venv/Scripts/activate && pip install -r requirements.txt\"",
-    "install:frontend": "bash -c \"cd frontend && npm install\"",
-    "setup": "yarn install && yarn install:frontend && yarn install:backend",
-    "health": "curl http://localhost:8000/api/v1/health || echo 'Backend not running'",
-    "docs": "echo 'API Documentation: http://localhost:8000/docs'",
-    "quick-start": "bash start.sh"
+    "start:backend": "cd backend && python run.py",
+    "start:frontend": "cd frontend && npm run preview",
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "install:frontend": "cd frontend && npm install",
+    "setup": "npm install && npm run install:frontend && npm run install:backend"
   },
   "keywords": [
     "exoplanet",
