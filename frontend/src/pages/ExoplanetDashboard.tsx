@@ -17,10 +17,15 @@ export default function ExoplanetDashboard() {
   const [transitDepth, setTransitDepth] = useState(5000);
   const [transitDuration, setTransitDuration] = useState(3.5);
 
-  const [lightCurveData, setLightCurveData] = useState<Array<{ time: number; flux: number }>>([]);
-  const [classification, setClassification] = useState<Classification>("CONFIRMED");
+  const [lightCurveData, setLightCurveData] = useState<
+    Array<{ time: number; flux: number }>
+  >([]);
+  const [classification, setClassification] =
+    useState<Classification>("CONFIRMED");
   const [confidence, setConfidence] = useState(0.94);
-  const [featureImportanceData, setFeatureImportanceData] = useState<Array<{ name: string; importance: number; color: string }>>([]);
+  const [featureImportanceData, setFeatureImportanceData] = useState<
+    Array<{ name: string; importance: number; color: string }>
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +44,7 @@ export default function ExoplanetDashboard() {
         );
 
         // Convert API format {x, y} to {time, flux}
-        const convertedData = lightCurveResponse.data.map(point => ({
+        const convertedData = lightCurveResponse.data.map((point) => ({
           time: point.x,
           flux: point.y,
         }));
@@ -48,8 +53,11 @@ export default function ExoplanetDashboard() {
         // Calculate derived parameters for better prediction
         const estimatedRadius = Math.sqrt(transitDepth / 10000) * 1.5; // Earth radii
         const estimatedTemp = Math.round(300 + (50 / orbitalPeriod) * 200); // Kelvin
-        const estimatedSNR = Math.min(100, (transitDepth / 100) * (1 / (transitDuration / 24))); // Signal-to-noise
-        
+        const estimatedSNR = Math.min(
+          100,
+          (transitDepth / 100) * (1 / (transitDuration / 24))
+        ); // Signal-to-noise
+
         // Fetch prediction from backend with enhanced parameters
         const predictionResponse = await getPrediction({
           transit: {
@@ -90,7 +98,9 @@ export default function ExoplanetDashboard() {
           "hsl(var(--chart-5))",
         ];
 
-        const importanceArray = Object.entries(predictionResponse.feature_importance)
+        const importanceArray = Object.entries(
+          predictionResponse.feature_importance
+        )
           .map(([name, importance], index) => ({
             name: name.replace("koi_", "").replace("_", " "),
             importance,
@@ -102,10 +112,16 @@ export default function ExoplanetDashboard() {
         setFeatureImportanceData(importanceArray);
       } catch (err) {
         console.error("Failed to fetch prediction:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch prediction");
-        
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch prediction"
+        );
+
         // Fallback to mock data on error
-        const mockData = generateMockLightCurve(orbitalPeriod, transitDepth / 1000000, transitDuration);
+        const mockData = generateMockLightCurve(
+          orbitalPeriod,
+          transitDepth / 1000000,
+          transitDuration
+        );
         setLightCurveData(mockData);
       } finally {
         setIsLoading(false);
@@ -118,7 +134,11 @@ export default function ExoplanetDashboard() {
   }, [orbitalPeriod, transitDepth, transitDuration]);
 
   // Fallback function for generating mock data if API fails
-  const generateMockLightCurve = (period: number, depth: number, duration: number) => {
+  const generateMockLightCurve = (
+    period: number,
+    depth: number,
+    duration: number
+  ) => {
     const points = 100;
     const data = [];
     const totalTime = Math.min(period * 0.3, 10);
@@ -133,7 +153,8 @@ export default function ExoplanetDashboard() {
         ? 1 - Math.cos((Math.PI * (time - transitCenter)) / transitWidth) / 2
         : 0;
 
-      const flux = 1 - depth * transitProgress + (Math.random() * 0.0005 - 0.00025);
+      const flux =
+        1 - depth * transitProgress + (Math.random() * 0.0005 - 0.00025);
 
       data.push({
         time: parseFloat(time.toFixed(2)),

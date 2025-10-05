@@ -3,7 +3,8 @@
  * Connects React frontend to FastAPI backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 // Type definitions matching backend models
 export interface TransitParameters {
@@ -84,7 +85,9 @@ export async function getPrediction(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: "Prediction failed" }));
+    const error = await response
+      .json()
+      .catch(() => ({ detail: "Prediction failed" }));
     throw new Error(error.detail || "Prediction failed");
   }
 
@@ -105,7 +108,9 @@ export async function getLightCurve(
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: "Light curve generation failed" }));
+    const error = await response
+      .json()
+      .catch(() => ({ detail: "Light curve generation failed" }));
     throw new Error(error.detail || "Light curve generation failed");
   }
 
@@ -115,9 +120,12 @@ export async function getLightCurve(
 /**
  * Check API health
  */
-export async function checkHealth(): Promise<{ status: string; timestamp: string }> {
+export async function checkHealth(): Promise<{
+  status: string;
+  timestamp: string;
+}> {
   const response = await fetch(`${API_BASE_URL}/health`);
-  
+
   if (!response.ok) {
     throw new Error("API health check failed");
   }
@@ -128,9 +136,11 @@ export async function checkHealth(): Promise<{ status: string; timestamp: string
 /**
  * Get feature bounds for validation
  */
-export async function getFeatureBounds(): Promise<Record<string, { min: number; max: number }>> {
+export async function getFeatureBounds(): Promise<
+  Record<string, { min: number; max: number }>
+> {
   const response = await fetch(`${API_BASE_URL}/feature-bounds`);
-  
+
   if (!response.ok) {
     throw new Error("Failed to fetch feature bounds");
   }

@@ -1,7 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, AlertTriangle, XCircle, Zap, Loader2 } from "lucide-react";
+import {
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Zap,
+  Loader2,
+} from "lucide-react";
 
 type Classification = "CONFIRMED" | "CANDIDATE" | "FALSE POSITIVE";
 
@@ -50,7 +56,9 @@ export default function AIClassificationCard({
   const Icon = config.icon;
 
   return (
-    <Card className={`p-4 border-2 ${config.borderColor} ${config.bgColor} backdrop-blur-sm animate-fade-in`}>
+    <Card
+      className={`p-4 border-2 ${config.borderColor} ${config.bgColor} backdrop-blur-sm animate-fade-in`}
+    >
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <div className={`p-1.5 rounded-md ${config.bgColor}`}>
@@ -60,13 +68,17 @@ export default function AIClassificationCard({
             <h3 className="font-heading text-base font-semibold text-foreground">
               AI Classification
             </h3>
-            <p className="text-xs text-muted-foreground">Real-time analysis result</p>
+            <p className="text-xs text-muted-foreground">
+              Real-time analysis result
+            </p>
           </div>
         </div>
 
         <div className="flex items-center justify-center py-4">
           <div className="relative">
-            <div className={`absolute inset-0 ${config.bgColor} rounded-full blur-xl opacity-50 animate-glow-pulse`} />
+            <div
+              className={`absolute inset-0 ${config.bgColor} rounded-full blur-xl opacity-50 animate-glow-pulse`}
+            />
             {isLoading ? (
               <Loader2 className="w-16 h-16 text-primary relative z-10 animate-spin" />
             ) : (
