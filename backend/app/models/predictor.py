@@ -53,6 +53,7 @@ class SecureExoplanetPredictor:
         # Model components
         self.rf_model = None
         self.xgb_model = None
+        self.scaler = None
         self.ensemble_metadata = None
         self.feature_bounds = None
         
@@ -90,15 +91,21 @@ class SecureExoplanetPredictor:
             # Load XGBoost
             xgb_path = self.model_path / "xgboost.model"
             if xgb_path.exists():
-                with open(xgb_path, 'rb') as f:
-                    self.xgb_model = pickle.load(f)
+                self.xgb_model = joblib.load(xgb_path)
                 logger.info("XGBoost model loaded")
+            
+            # Load Scaler (CRITICAL!)
+            scaler_path = self.model_path / "scaler.model"
+            if scaler_path.exists():
+                self.scaler = joblib.load(scaler_path)
+                logger.info("✅ Feature scaler loaded - predictions will be normalized")
+            else:
+                logger.warning("⚠️  No scaler found - predictions may be inaccurate!")
             
             # Load ensemble metadata
             metadata_path = self.model_path / "ensemble_metadata.model"
             if metadata_path.exists():
-                with open(metadata_path, 'rb') as f:
-                    self.ensemble_metadata = pickle.load(f)
+                self.ensemble_metadata = joblib.load(metadata_path)
                 if 'target_map' in self.ensemble_metadata:
                     # The target_map may be inverted (string->int), so we need to invert it to (int->string)
                     loaded_map = self.ensemble_metadata['target_map']
@@ -123,8 +130,7 @@ class SecureExoplanetPredictor:
             # Load feature bounds for validation
             bounds_path = self.model_path / "features.model"
             if bounds_path.exists():
-                with open(bounds_path, 'rb') as f:
-                    self.feature_bounds = pickle.load(f)
+                self.feature_bounds = joblib.load(bounds_path)
                 logger.info("Feature bounds loaded")
             else:
                 # Fallback: create reasonable bounds for basic validation
@@ -296,9 +302,17 @@ class SecureExoplanetPredictor:
             # Engineer features
             features_df = self.engineer_features(data)
             
+            # Scale features if scaler is available (CRITICAL for correct predictions!)
+            if self.scaler is not None:
+                features_scaled = self.scaler.transform(features_df)
+                logger.debug(f"Features scaled: {features_df.iloc[0]['koi_period']:.2f} -> {features_scaled[0][0]:.3f}")
+            else:
+                features_scaled = features_df.values
+                logger.warning("Predicting without scaling - results may be incorrect!")
+            
             # Make predictions
-            rf_probs = self.rf_model.predict_proba(features_df)[0]
-            xgb_probs = self.xgb_model.predict_proba(features_df)[0]
+            rf_probs = self.rf_model.predict_proba(features_scaled)[0]
+            xgb_probs = self.xgb_model.predict_proba(features_scaled)[0]
             
             # Ensemble prediction (weighted average)
             ensemble_probs = (self.rf_weight * rf_probs + self.xgb_weight * xgb_probs)

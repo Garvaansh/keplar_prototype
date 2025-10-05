@@ -114,11 +114,15 @@ async def predict_batch(
                     "duration": round(original_data.get('koi_duration', 0), 2),
                     "snr": round(original_data.get('koi_model_snr', 0), 1),
                     
+                    # Feature importance (full dictionary for charts)
+                    "feature_importance": {k: round(v, 4) for k, v in result.feature_importance.items()} if result.feature_importance else {},
+                    
+                    # Light curve parameters for visualization
+                    "light_curve_params": result.light_curve_params,
+                    
                     # Validation and explanations
                     "warnings": len(result.validation_warnings),
                     "warning_details": result.validation_warnings[:3],  # First 3 warnings
-                    "top_feature": list(result.feature_importance.keys())[0] if result.feature_importance else "N/A",
-                    "top_importance": round(list(result.feature_importance.values())[0], 3) if result.feature_importance else 0,
                     
                     # Status for UI
                     "status": "success",

@@ -4,12 +4,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ExoplanetDashboard from "@/pages/ExoplanetDashboard";
+import BatchProcessing from "@/pages/BatchProcessing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={ExoplanetDashboard} />
+      <Route path="/batch" component={BatchProcessing} />
       <Route component={NotFound} />
     </Switch>
   );

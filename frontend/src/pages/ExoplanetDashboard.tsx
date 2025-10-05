@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Orbit, Gauge, Clock, Telescope } from "lucide-react";
+import { Orbit, Gauge, Clock, Telescope, FileSpreadsheet } from "lucide-react";
 import { Ruler, Thermometer, Calendar, Globe } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import ParameterSlider from "@/components/ParameterSlider";
 import LightCurveChart from "@/components/LightCurveChart";
 import FeatureImportanceChart from "@/components/FeatureImportanceChart";
@@ -8,7 +10,6 @@ import AIClassificationCard from "@/components/AIClassificationCard";
 import PlanetStatsCard from "@/components/PlanetStatsCard";
 import StarryBackground from "@/components/StarryBackground";
 import { getPrediction, getLightCurve } from "@/lib/api";
-import type { PredictionResponse } from "@/lib/api";
 
 type Classification = "CONFIRMED" | "CANDIDATE" | "FALSE POSITIVE";
 
@@ -199,18 +200,26 @@ export default function ExoplanetDashboard() {
       <div className="relative z-10">
         <header className="border-b border-border/50 bg-card/30 backdrop-blur-md sticky top-0 z-20">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                <Telescope className="w-6 h-6 text-primary" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                  <Telescope className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-heading font-bold text-foreground">
+                    A World Away
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    Exoplanet AI Analyzer - Real-time Discovery Dashboard
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-heading font-bold text-foreground">
-                  A World Away
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Exoplanet AI Analyzer - Real-time Discovery Dashboard
-                </p>
-              </div>
+              <Link href="/batch">
+                <Button variant="outline" className="gap-2">
+                  <FileSpreadsheet className="w-4 h-4" />
+                  Batch Processing
+                </Button>
+              </Link>
             </div>
           </div>
         </header>
