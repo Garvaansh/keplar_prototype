@@ -9,15 +9,9 @@
   ],
   "scripts": {
     "dev": "concurrently --kill-others-on-fail \"yarn dev:backend\" \"yarn dev:frontend\"",
-    "dev:backend": "cd backend && python run.py",
-    "dev:frontend": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build",
-    "start": "concurrently --kill-others-on-fail \"yarn start:backend\" \"yarn start:frontend\"",
-    "start:backend": "cd backend && python run.py",
-    "start:frontend": "cd frontend && npm run preview",
-    "install:backend": "cd backend && pip install -r requirements.txt",
-    "install:frontend": "cd frontend && npm install",
-    "setup": "npm install && npm run install:frontend && npm run install:backend"
+    "dev:backend": "yarn workspace backend dev",
+    "dev:frontend": "yarn workspace frontend dev",
+    "build": "cd frontend && npm run build"
   },
   "keywords": [
     "exoplanet",
@@ -32,6 +26,7 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "npm": ">=10.0.0"
-  }
+    "yarn": ">=4.5.3"
+  },
+  "packageManager": "yarn@4.12.0"
 }

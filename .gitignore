@@ -4,9 +4,10 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-venv
+.venv
 __pycache__/
 /__pycache__
 .env
 *.log
 yarn.lock
+.python-version

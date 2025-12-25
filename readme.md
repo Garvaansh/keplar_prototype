@@ -146,28 +146,6 @@ kepler2.0-dashboard-main/
 - **System**: Windows/Linux/macOS
 
 ### Installation
-
-#### Option 1: Automated Setup (Recommended)
-
-```bash
-# Clone the repository
-git clone https://github.com/Garvaansh/keplar_prototype/
-cd keplar_prototype
-
-# Run the cross-platform setup script
-python setup.py
-```
-
-The setup script will automatically:
-
-- Check Python 3.8+ and Node.js 16+ are installed
-- Create a virtual environment for the backend
-- Install all Python dependencies
-- Install all frontend dependencies
-- Verify trained models are present
-
-#### Option 2: Manual Setup
-
 **Step 1: Clone the Repository**
 
 ```bash
@@ -196,12 +174,10 @@ pip install -r requirements.txt
 **Step 3: Frontend Setup**
 
 ```bash
-cd frontend
+# ensure you're in root directory.
 
-# Install dependencies (choose yarn or npm)
+# Install dependencies
 yarn install
-# or
-npm install
 ```
 
 ### Running the Application
@@ -242,14 +218,6 @@ python run.py
 cd frontend
 npm run dev
 ```
-
-The backend `run.py` script automatically:
-
-- Detects your operating system
-- Activates the virtual environment
-- Starts the FastAPI server with hot reload
-  yarn dev
-
 
 
 Frontend will run at `http://localhost:5173`
