@@ -59,11 +59,11 @@ backend/
 
 - `GET /` - API information
 - `GET /api/v1/health` - Health check
-- `GET /api/v1/health/detailed` - Detailed status
+- `GET /api/v1/health/detailed` - detailde access
 
 ### Prediction Endpoints
 
-- `POST /api/v1/predict` - Single prediction
+- `POST /api/v1/predict` - light processing
 - `POST /api/v1/batch-predict` - CSV batch processing
 - `GET /api/v1/light-curve/{period}/{depth}/{duration}` - Light curve data
 

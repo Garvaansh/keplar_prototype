@@ -34,6 +34,7 @@ RUN useradd --create-home --shell /bin/bash app \
     && chown -R app:app /app
 USER app
 
+
 # Expose port
 EXPOSE 8000
 
